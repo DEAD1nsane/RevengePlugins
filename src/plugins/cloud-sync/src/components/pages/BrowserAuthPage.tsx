@@ -3,6 +3,7 @@ import { getAssetIDByName } from "@vendetta/ui/assets";
 import { showToast } from "@vendetta/ui/toasts";
 
 import { WebView } from "$/deps";
+import { Button } from "$/lib/redesign";
 import { managePage } from "$/lib/ui";
 
 import { lang } from "../..";
@@ -85,9 +86,16 @@ export default function BrowserAuthPage() {
 						flex: 1,
 						alignItems: "center",
 						justifyContent: "center",
+						gap: 16,
 					}}
 				>
 					<RN.ActivityIndicator size="large" />
+					<Button
+						text="Return to settings"
+						variant="secondary"
+						size="md"
+						onPress={() => navigation?.goBack?.()}
+					/>
 				</RN.View>
 			)}
 		</RN.View>
