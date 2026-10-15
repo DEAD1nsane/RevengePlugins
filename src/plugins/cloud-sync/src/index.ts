@@ -19,7 +19,10 @@ const UserStore = findByStoreName("UserStore");
 export const vstorage = storage as {
 	config: {
 		autoSync: boolean;
-		autoSyncDisarmed?: boolean;
+		// Set once the user flips the switch by hand. While unset,
+		// auto-sync manages itself: off when there is nothing to back up,
+		// on as soon as real content exists.
+		autoSyncManual?: boolean;
 		addToSettings: boolean;
 		ignoredPlugins: string[];
 	};
@@ -51,12 +54,6 @@ const autoSync = async () => {
 		return;
 	}
 
-	// Skip the storage scan entirely when the user deliberately turned
-	// auto-sync off (as opposed to it being disarmed by the empty guard).
-	if (!vstorage.config.autoSync && !vstorage.config.autoSyncDisarmed) {
-		return;
-	}
-
 	const cache = useCacheStore.getState();
 	const everything = await grabEverything();
 
@@ -65,23 +62,14 @@ const autoSync = async () => {
 		|| Object.keys(everything.fonts.installed).length + everything.fonts.custom.length > 0;
 
 	if (!hasContent) {
-		// Local state looks wiped or corrupt: never upload it, and disarm
-		// auto-sync so the cloud backup survives. Re-arms automatically
-		// once real content is back. A manual off is left untouched.
-		if (vstorage.config.autoSync) {
-			vstorage.config.autoSync = false;
-			vstorage.config.autoSyncDisarmed = true;
-		}
+		// Nothing to back up (fresh install or wiped state): an empty
+		// state must never be uploaded over a real backup.
 		return;
 	}
 
-	if (vstorage.config.autoSyncDisarmed) {
-		vstorage.config.autoSyncDisarmed = false;
+	if (!vstorage.config.autoSync && !vstorage.config.autoSyncManual) {
+		// Real content appeared and the user never chose: enable itself.
 		vstorage.config.autoSync = true;
-	}
-
-	if (!vstorage.config.autoSync) {
-		return;
 	}
 
 	if (JSON.stringify(cache.data) !== JSON.stringify(everything)) {
@@ -98,16 +86,19 @@ const autoSync = async () => {
 					if (useAuthorizationStore.getState().isAuthorized()) {
 						await saveData(everything);
 					}
-				} catch (e: any) {
-					if (
-						e?.message
-							?.toLowerCase()
-							.includes("request entity too large")
-					) {
-						vstorage.realTrackingAnalyticsSentToChina.tooMuchData = true;
-						vstorage.config.autoSync = false;
+					} catch (e: any) {
+						if (
+							e?.message
+								?.toLowerCase()
+								.includes("request entity too large")
+						) {
+							vstorage.realTrackingAnalyticsSentToChina.tooMuchData = true;
+							vstorage.config.autoSync = false;
+							// Stay off until the user re-enables by hand,
+							// otherwise the next change would retry in a loop.
+							vstorage.config.autoSyncManual = true;
+						}
 					}
-				}
 			});
 		}
 	}
@@ -123,7 +114,7 @@ export const initState = {
 const patches: (any)[] = [];
 export function onLoad() {
 	vstorage.config ??= {
-		autoSync: true,
+		autoSync: false,
 		addToSettings: true,
 		ignoredPlugins: [],
 	};

@@ -279,6 +279,9 @@ export default function() {
 					onValueChange={() => {
 						vstorage.realTrackingAnalyticsSentToChina.tooMuchData = false;
 						vstorage.config.autoSync = !vstorage.config.autoSync;
+						// The user has taken control: never flip it behind
+						// their back again, only upload-skipping still applies.
+						vstorage.config.autoSyncManual = true;
 						// TODO don't use forceUpdate here
 						forceUpdate();
 					}}
