@@ -86,19 +86,19 @@ const autoSync = async () => {
 					if (useAuthorizationStore.getState().isAuthorized()) {
 						await saveData(everything);
 					}
-					} catch (e: any) {
-						if (
-							e?.message
-								?.toLowerCase()
-								.includes("request entity too large")
-						) {
-							vstorage.realTrackingAnalyticsSentToChina.tooMuchData = true;
-							vstorage.config.autoSync = false;
-							// Stay off until the user re-enables by hand,
-							// otherwise the next change would retry in a loop.
-							vstorage.config.autoSyncManual = true;
-						}
+				} catch (e: any) {
+					if (
+						e?.message
+							?.toLowerCase()
+							.includes("request entity too large")
+					) {
+						vstorage.realTrackingAnalyticsSentToChina.tooMuchData = true;
+						vstorage.config.autoSync = false;
+						// Stay off until the user re-enables by hand,
+						// otherwise the next change would retry in a loop.
+						vstorage.config.autoSyncManual = true;
 					}
+				}
 			});
 		}
 	}
