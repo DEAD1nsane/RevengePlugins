@@ -54,8 +54,9 @@ export default function BrowserAuthPage({ navigation }: { navigation: any }) {
 	// Runs at document start; the backend page has no scripts of its own,
 	// so wait for load (body may not exist yet) before reporting its text.
 	// A second read is triggered from onNavigationStateChange as backup.
-	const captureJs =
-		`(function(){function send(){try{if(location.href.indexOf(${JSON.stringify(apiBase)})===0){var t=document.body?document.body.innerText||"":"";if(t){window.ReactNativeWebView.postMessage(t);}}}catch(e){}}if(document.readyState==="complete"){send();}else{window.addEventListener("load",send);}})();true;`;
+	const captureJs = `(function(){function send(){try{if(location.href.indexOf(${
+		JSON.stringify(apiBase)
+	})===0){var t=document.body?document.body.innerText||"":"";if(t){window.ReactNativeWebView.postMessage(t);}}}catch(e){}}if(document.readyState==="complete"){send();}else{window.addEventListener("load",send);}})();true;`;
 
 	return (
 		<RN.View style={{ flex: 1 }}>
