@@ -40,6 +40,7 @@ import type { UserData } from "../types";
 import DataStat from "./DataStat";
 import NerdConfig from "./NerdConfig";
 import IgnoredPluginsPage from "./pages/IgnoredPluginsPage";
+import ManualAuthPage from "./pages/ManualAuthPage";
 import ImportActionSheet from "./sheets/ImportActionSheet";
 import TooMuchDataSheet from "./sheets/TooMuchDataSheet";
 import WwyltdSheet from "./sheets/WwyltdSheet";
@@ -414,16 +415,32 @@ export default function() {
 						</>
 					)
 					: (
-						<TableRow
-							label={lang.format("settings.auth.authorize", {})}
-							icon={
-								<TableRow.Icon
-									source={getAssetIDByName("LinkIcon")}
-								/>
-							}
-							arrow
-							onPress={openOauth2Modal}
-						/>
+						<>
+							<TableRow
+								label={lang.format("settings.auth.authorize", {})}
+								icon={
+									<TableRow.Icon
+										source={getAssetIDByName("LinkIcon")}
+									/>
+								}
+								arrow
+								onPress={openOauth2Modal}
+							/>
+							<TableRow
+								label="Enter token manually"
+								subLabel="Use this if the button above doesn't log you in"
+								icon={
+									<TableRow.Icon
+										source={getAssetIDByName("PencilIcon")}
+									/>
+								}
+								arrow
+								onPress={() =>
+									navigation.push("VendettaCustomPage", {
+										render: ManualAuthPage,
+									})}
+							/>
+						</>
 					)}
 			</BetterTableRowGroup>
 			<BetterTableRowGroup

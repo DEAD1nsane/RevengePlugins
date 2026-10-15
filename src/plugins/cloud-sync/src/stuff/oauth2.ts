@@ -1,4 +1,5 @@
 import { findByName, findByProps } from "@vendetta/metro";
+import { url } from "@vendetta/metro/common";
 import { getAssetIDByName } from "@vendetta/ui/assets";
 import { showToast } from "@vendetta/ui/toasts";
 
@@ -22,12 +23,26 @@ function getModalModules() {
 	return { pushModal, popModal, OAuth2AuthorizeModal };
 }
 
+export function buildOAuthURL() {
+	const params = new URLSearchParams({
+		client_id: constants.oauth2.clientId,
+		redirect_uri: constants.oauth2.redirectURL,
+		response_type: "code",
+		scope: "identify",
+	});
+	return `https://discord.com/oauth2/authorize?${params.toString()}`;
+}
+
 export function openOauth2Modal() {
 	const { pushModal, popModal, OAuth2AuthorizeModal } = getModalModules();
 	if (!pushModal || !popModal || !OAuth2AuthorizeModal) {
+		// In-app OAuth modal is gone on this Discord version:
+		// send the user through the browser instead, the backend
+		// shows the token as plain text for manual paste.
+		url.openURL(buildOAuthURL());
 		showToast(
-			"Discord changed its OAuth modules, cannot authorize (update the plugin)",
-			getAssetIDByName("CircleXIcon-primary"),
+			"Browser opened — copy the token shown and paste it in settings",
+			getAssetIDByName("LinkIcon"),
 		);
 		return;
 	}
