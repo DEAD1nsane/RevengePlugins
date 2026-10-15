@@ -19,6 +19,7 @@ const UserStore = findByStoreName("UserStore");
 export const vstorage = storage as {
 	config: {
 		autoSync: boolean;
+		autoSyncDisarmed?: boolean;
 		addToSettings: boolean;
 		ignoredPlugins: string[];
 	};
@@ -46,19 +47,42 @@ export function canImport(id: string) {
 }
 
 const autoSync = async () => {
-	if (
-		!vstorage.config.autoSync
-		|| !useAuthorizationStore.getState().isAuthorized()
-	) {
+	if (!useAuthorizationStore.getState().isAuthorized()) {
+		return;
+	}
+
+	// Skip the storage scan entirely when the user deliberately turned
+	// auto-sync off (as opposed to it being disarmed by the empty guard).
+	if (!vstorage.config.autoSync && !vstorage.config.autoSyncDisarmed) {
 		return;
 	}
 
 	const cache = useCacheStore.getState();
 	const everything = await grabEverything();
 
-	// only autosync if user has atleast 1 plugin installed, this sorta fixes
-	// the issue of cloud sync autosyncing if the user's plugin save corrupts
-	if (!Object.keys(everything.plugins).length) return;
+	const hasContent = Object.keys(everything.plugins).length > 0
+		|| Object.keys(everything.themes).length > 0
+		|| Object.keys(everything.fonts.installed).length + everything.fonts.custom.length > 0;
+
+	if (!hasContent) {
+		// Local state looks wiped or corrupt: never upload it, and disarm
+		// auto-sync so the cloud backup survives. Re-arms automatically
+		// once real content is back. A manual off is left untouched.
+		if (vstorage.config.autoSync) {
+			vstorage.config.autoSync = false;
+			vstorage.config.autoSyncDisarmed = true;
+		}
+		return;
+	}
+
+	if (vstorage.config.autoSyncDisarmed) {
+		vstorage.config.autoSyncDisarmed = false;
+		vstorage.config.autoSync = true;
+	}
+
+	if (!vstorage.config.autoSync) {
+		return;
+	}
 
 	if (JSON.stringify(cache.data) !== JSON.stringify(everything)) {
 		// let's double check
