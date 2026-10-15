@@ -16,50 +16,64 @@ import { buildOAuthURL } from "../../stuff/oauth2";
 // authorization without any copy-paste.
 export default function BrowserAuthPage({ navigation }: { navigation: any }) {
 	const [done, setDone] = React.useState(false);
+	const webview = React.useRef<any>(null);
 
 	managePage({ title: "Log in with Discord" }, navigation);
 
 	const apiBase = constants.api;
 
-	const captureJs = `(function(){try{if(location.href.indexOf(${
-		JSON.stringify(apiBase)
-	})===0){window.ReactNativeWebView.postMessage(document.body?document.body.innerText||"":"");}}}catch(e){}})();true;`;
+	const finish = async (raw: string) => {
+		const token = (raw ?? "").trim();
+		if (
+			done
+			|| !token
+			|| token.startsWith("Missing")
+			|| token.startsWith("Invalid")
+			|| token.startsWith("Discord ratelimited")
+			|| token.length < 10
+		) {
+			return;
+		}
+
+		setDone(true);
+		useAuthorizationStore.getState().setToken(token);
+		try {
+			await getData();
+			showToast(
+				lang.format("toast.oauth.authorized", {}),
+				getAssetIDByName("CircleCheckIcon-primary"),
+			);
+		} catch {
+			useAuthorizationStore.getState().setToken(undefined);
+			setDone(false);
+			return;
+		}
+		navigation?.goBack?.();
+	};
+
+	// Runs at document start; the backend page has no scripts of its own,
+	// so wait for load (body may not exist yet) before reporting its text.
+	// A second read is triggered from onNavigationStateChange as backup.
+	const captureJs =
+		`(function(){function send(){try{if(location.href.indexOf(${JSON.stringify(apiBase)})===0){var t=document.body?document.body.innerText||"":"";if(t){window.ReactNativeWebView.postMessage(t);}}}catch(e){}}if(document.readyState==="complete"){send();}else{window.addEventListener("load",send);}})();true;`;
 
 	return (
 		<RN.View style={{ flex: 1 }}>
 			{!done && (
 				<WebView
+					ref={webview}
 					source={{ uri: buildOAuthURL() }}
 					injectedJavaScript={captureJs}
-					onMessage={async (event: any) => {
-						const token = (
-							event?.nativeEvent?.data ?? ""
-						).trim();
+					onNavigationStateChange={(nav: any) => {
 						if (
-							!token
-							|| token.startsWith("Missing")
-							|| token.startsWith("Invalid")
-							|| token.startsWith("Discord ratelimited")
-							|| token.length < 10
+							typeof nav?.url === "string"
+							&& nav.url.indexOf(apiBase) === 0
+							&& nav.loading === false
 						) {
-							return;
+							webview.current?.injectJavaScript?.(captureJs);
 						}
-
-						setDone(true);
-						useAuthorizationStore.getState().setToken(token);
-						try {
-							await getData();
-							showToast(
-								lang.format("toast.oauth.authorized", {}),
-								getAssetIDByName("CircleCheckIcon-primary"),
-							);
-						} catch {
-							useAuthorizationStore.getState().setToken(undefined);
-							setDone(false);
-							return;
-						}
-						navigation?.goBack?.();
 					}}
+					onMessage={(event: any) => void finish(event?.nativeEvent?.data)}
 					style={{ flex: 1 }}
 				/>
 			)}
