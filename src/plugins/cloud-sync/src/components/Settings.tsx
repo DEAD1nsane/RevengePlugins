@@ -34,12 +34,13 @@ import {
 	saveData,
 } from "../stuff/api";
 import { canSaveFileNatively, pickFile, saveFile } from "../stuff/files";
-import { openOauth2Modal } from "../stuff/oauth2";
+
 import { grabEverything, setImportCallback } from "../stuff/syncStuff";
 import type { UserData } from "../types";
 import DataStat from "./DataStat";
 import NerdConfig from "./NerdConfig";
 import IgnoredPluginsPage from "./pages/IgnoredPluginsPage";
+import BrowserAuthPage from "./pages/BrowserAuthPage";
 import ManualAuthPage from "./pages/ManualAuthPage";
 import ImportActionSheet from "./sheets/ImportActionSheet";
 import TooMuchDataSheet from "./sheets/TooMuchDataSheet";
@@ -424,7 +425,10 @@ export default function() {
 									/>
 								}
 								arrow
-								onPress={openOauth2Modal}
+								onPress={() =>
+									navigation.push("VendettaCustomPage", {
+										render: BrowserAuthPage,
+									})}
 							/>
 							<TableRow
 								label="Enter token manually"
