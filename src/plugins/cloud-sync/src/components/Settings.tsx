@@ -1,5 +1,5 @@
 import { logger, plugin, settings } from "@vendetta";
-import { findByStoreName } from "@vendetta/metro";
+import { findByProps, findByStoreName } from "@vendetta/metro";
 import {
 	NavigationNative,
 	React,
@@ -12,7 +12,6 @@ import { useProxy } from "@vendetta/storage";
 import { semanticColors } from "@vendetta/ui";
 import { showConfirmationAlert } from "@vendetta/ui/alerts";
 import { getAssetIDByName } from "@vendetta/ui/assets";
-import { Forms } from "@vendetta/ui/components";
 import { showToast } from "@vendetta/ui/toasts";
 
 import { ActionSheet } from "$/components/ActionSheet";
@@ -47,7 +46,7 @@ import WwyltdSheet from "./sheets/WwyltdSheet";
 
 const UserStore = findByStoreName("UserStore");
 
-const { FormRow, FormSwitchRow } = Forms;
+const { TableRow, TableSwitchRow } = findByProps("TableRow", "TableSwitchRow");
 
 export default function() {
 	useProxy(storage);
@@ -253,7 +252,7 @@ export default function() {
 				}
 				icon={getAssetIDByName("SettingsIcon")}
 			>
-				<FormSwitchRow
+				<TableSwitchRow
 					label={lang.format("settings.config.auto_save.title", {})}
 					subLabel={vstorage.realTrackingAnalyticsSentToChina
 							.tooMuchData
@@ -271,8 +270,8 @@ export default function() {
 								{},
 							)
 						)}
-					leading={
-						<FormRow.Icon
+					icon={
+						<TableRow.Icon
 							source={getAssetIDByName("RefreshIcon")}
 						/>
 					}
@@ -284,7 +283,7 @@ export default function() {
 					}}
 					value={vstorage.config.autoSync}
 				/>
-				<FormSwitchRow
+				<TableSwitchRow
 					label={lang.format(
 						"settings.config.settings_pin.title",
 						{},
@@ -293,21 +292,21 @@ export default function() {
 						"settings.config.settings_pin.description",
 						{},
 					)}
-					leading={<FormRow.Icon source={getAssetIDByName("PinIcon")} />}
+					icon={<TableRow.Icon source={getAssetIDByName("PinIcon")} />}
 					onValueChange={() => (vstorage.config.addToSettings = !vstorage.config
 						.addToSettings)}
 					value={vstorage.config.addToSettings}
 				/>
-				<FormRow
+				<TableRow
 					label={lang.format("page.ignored_plugins.title", {
 						count: vstorage.config.ignoredPlugins.length.toString(),
 					})}
-					leading={
-						<FormRow.Icon
+					icon={
+						<TableRow.Icon
 							source={getAssetIDByName("ListBulletsIcon")}
 						/>
 					}
-					trailing={<FormRow.Arrow />}
+					arrow
 					onPress={() =>
 						navigation.push("VendettaCustomPage", {
 							render: IgnoredPluginsPage,
@@ -322,7 +321,7 @@ export default function() {
 				{isAuthorized()
 					? (
 						<>
-							<FormRow
+							<TableRow
 								label={lang.format(
 									"settings.auth.log_out.title",
 									{},
@@ -331,12 +330,12 @@ export default function() {
 									"settings.auth.log_out.description",
 									{},
 								)}
-								leading={
-									<FormRow.Icon
+								icon={
+									<TableRow.Icon
 										source={getAssetIDByName("DoorExitIcon")}
 									/>
 								}
-								destructive
+								variant="danger"
 								onPress={() =>
 									!isBusy.length
 									&& showConfirmationAlert({
@@ -362,7 +361,7 @@ export default function() {
 										},
 									})}
 							/>
-							<FormRow
+							<TableRow
 								label={lang.format(
 									"settings.auth.delete_data.title",
 									{},
@@ -371,10 +370,10 @@ export default function() {
 									"settings.auth.delete_data.description",
 									{},
 								)}
-								leading={isBusy.includes("delete_data")
+								icon={isBusy.includes("delete_data")
 									? <RN.ActivityIndicator size="small" />
 									: (
-										<FormRow.Icon
+										<TableRow.Icon
 											source={getAssetIDByName("TrashIcon")}
 										/>
 									)}
@@ -415,14 +414,14 @@ export default function() {
 						</>
 					)
 					: (
-						<FormRow
+						<TableRow
 							label={lang.format("settings.auth.authorize", {})}
-							leading={
-								<FormRow.Icon
+							icon={
+								<TableRow.Icon
 									source={getAssetIDByName("LinkIcon")}
 								/>
 							}
-							trailing={FormRow.Arrow}
+							arrow
 							onPress={openOauth2Modal}
 						/>
 					)}
@@ -435,7 +434,7 @@ export default function() {
 				{isAuthorized() && hasData()
 					? (
 						<>
-							<FormRow
+							<TableRow
 								label={lang.format(
 									"settings.manage_data.save_data.title",
 									{},
@@ -444,10 +443,10 @@ export default function() {
 									"settings.manage_data.save_data.description",
 									{},
 								)}
-								leading={isBusy.includes("save_api")
+								icon={isBusy.includes("save_api")
 									? <RN.ActivityIndicator size="small" />
 									: (
-										<FormRow.Icon
+										<TableRow.Icon
 											source={getAssetIDByName("UploadIcon")}
 										/>
 									)}
@@ -513,16 +512,16 @@ export default function() {
 									});
 								}}
 							/>
-							<FormRow
+							<TableRow
 								label={lang.format("sheet.import_data.title", {})}
 								subLabel={lang.format(
 									"settings.manage_data.import_data.description",
 									{},
 								)}
-								leading={isBusy.includes("import_api")
+								icon={isBusy.includes("import_api")
 									? <RN.ActivityIndicator size="small" />
 									: (
-										<FormRow.Icon
+										<TableRow.Icon
 											source={getAssetIDByName(
 												"DownloadIcon",
 											)}
@@ -557,7 +556,7 @@ export default function() {
 			</BetterTableRowGroup>
 			{isAuthorized() && hasData() && (
 				<BetterTableRowGroup nearby>
-					<FormRow
+					<TableRow
 						label={lang.format(
 							"settings.manage_data.download_compressed.title",
 							{},
@@ -566,10 +565,10 @@ export default function() {
 							"settings.manage_data.download_compressed.description",
 							{},
 						)}
-						leading={isBusy.includes("download_compressed")
+						icon={isBusy.includes("download_compressed")
 							? <RN.ActivityIndicator size="small" />
 							: (
-								<FormRow.Icon
+								<TableRow.Icon
 									source={getAssetIDByName("DownloadIcon")}
 								/>
 							)}
@@ -606,7 +605,7 @@ export default function() {
 							);
 						}}
 					/>
-					<FormRow
+					<TableRow
 						label={lang.format(
 							"settings.manage_data.import_compressed.title",
 							{},
@@ -615,10 +614,10 @@ export default function() {
 							"settings.manage_data.import_compressed.description",
 							{},
 						)}
-						leading={isBusy.includes("import_compressed")
+						icon={isBusy.includes("import_compressed")
 							? <RN.ActivityIndicator size="small" />
 							: (
-								<FormRow.Icon
+								<TableRow.Icon
 									source={getAssetIDByName("UploadIcon")}
 								/>
 							)}
