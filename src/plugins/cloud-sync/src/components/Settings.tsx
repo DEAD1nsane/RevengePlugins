@@ -415,19 +415,19 @@ export default function() {
 						</>
 					)
 					: (
-							<TableRow
-								label={lang.format("settings.auth.authorize", {})}
-								icon={
-									<TableRow.Icon
-										source={getAssetIDByName("LinkIcon")}
-									/>
-								}
-								arrow
-								onPress={() =>
-									navigation.push("VendettaCustomPage", {
-										render: BrowserAuthPage,
-									})}
-							/>
+						<TableRow
+							label={lang.format("settings.auth.authorize", {})}
+							icon={
+								<TableRow.Icon
+									source={getAssetIDByName("LinkIcon")}
+								/>
+							}
+							arrow
+							onPress={() =>
+								navigation.push("VendettaCustomPage", {
+									render: BrowserAuthPage,
+								})}
+						/>
 					)}
 			</BetterTableRowGroup>
 			<BetterTableRowGroup
