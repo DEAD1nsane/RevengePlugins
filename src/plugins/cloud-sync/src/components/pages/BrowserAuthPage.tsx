@@ -21,8 +21,9 @@ export default function BrowserAuthPage({ navigation }: { navigation: any }) {
 
 	const apiBase = constants.api;
 
-	const captureJs =
-		`(function(){try{if(location.href.indexOf(${JSON.stringify(apiBase)})===0){window.ReactNativeWebView.postMessage(document.body?document.body.innerText||"":"");}}}catch(e){}})();true;`;
+	const captureJs = `(function(){try{if(location.href.indexOf(${
+		JSON.stringify(apiBase)
+	})===0){window.ReactNativeWebView.postMessage(document.body?document.body.innerText||"":"");}}}catch(e){}})();true;`;
 
 	return (
 		<RN.View style={{ flex: 1 }}>
