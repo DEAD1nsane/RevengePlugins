@@ -99,7 +99,7 @@ export const initState = {
 const patches: (any)[] = [];
 export function onLoad() {
 	vstorage.config ??= {
-		autoSync: false,
+		autoSync: true,
 		addToSettings: true,
 		ignoredPlugins: [],
 	};
