@@ -1,4 +1,4 @@
-import { React, ReactNative as RN } from "@vendetta/metro/common";
+import { NavigationNative, React, ReactNative as RN } from "@vendetta/metro/common";
 import { url } from "@vendetta/metro/common";
 import { getAssetIDByName } from "@vendetta/ui/assets";
 import { showToast } from "@vendetta/ui/toasts";
@@ -13,8 +13,9 @@ import { useAuthorizationStore } from "../../stores/AuthorizationStore";
 import { getData } from "../../stuff/api";
 import { buildOAuthURL } from "../../stuff/oauth2";
 
-export default function ManualAuthPage({ navigation }: { navigation: any }) {
+export default function ManualAuthPage() {
 	const [token, setToken] = React.useState("");
+	const navigation = NavigationNative.useNavigation();
 
 	managePage({ title: "Manual authorization" }, navigation);
 

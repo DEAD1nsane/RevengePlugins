@@ -1,4 +1,4 @@
-import { React, ReactNative as RN } from "@vendetta/metro/common";
+import { NavigationNative, React, ReactNative as RN } from "@vendetta/metro/common";
 import { getAssetIDByName } from "@vendetta/ui/assets";
 import { showToast } from "@vendetta/ui/toasts";
 
@@ -14,9 +14,10 @@ import { buildOAuthURL } from "../../stuff/oauth2";
 // In-app OAuth login: the backend answers the authorize redirect with the
 // token as plain text, so read it straight out of the loaded page and finish
 // authorization without any copy-paste.
-export default function BrowserAuthPage({ navigation }: { navigation: any }) {
+export default function BrowserAuthPage() {
 	const [done, setDone] = React.useState(false);
 	const webview = React.useRef<any>(null);
+	const navigation = NavigationNative.useNavigation();
 
 	managePage({ title: "Log in with Discord" }, navigation);
 
