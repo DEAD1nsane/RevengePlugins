@@ -1,0 +1,18 @@
+{
+	"commentAnchors.tags.anchors": {
+		"STUB": {
+			"iconColor": "purple",
+			"highlightColor": "#BA68C8",
+			"scope": "workspace",
+			"behavior": "anchor"
+		}
+	},
+	"editor.formatOnSave": true,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.biome": "explicit"
+	},
+	"[typescript][typescriptreact][javascript][javascriptreact][yaml][json][jsonc][markdown]": {
+		"editor.defaultFormatter": "dprint.dprint"
+	},
+	"files.insertFinalNewline": true
+}
